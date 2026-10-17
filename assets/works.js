@@ -135,6 +135,54 @@ const WORKS = [
       en: "Black and white manga tribute composition with a character on a skateboard above a night city, a cracked glass pane, and figures arranged behind lilies along the lower edge.",
       ar: "تكوين بالأبيض والأسود على أسلوب المانغا، يضم شخصية على لوح تزلّج فوق مدينة ليلية، ولوح زجاج مهشّم، وشخصيات مرتّبة خلف زنابق على الحافة السفلى."
     }
+  },
+
+  {
+    file: "06-cat-food-home.jpg",
+    title: {
+      en: "Dry Food for Cats",
+      ar: "طعام جاف للقطط"
+    },
+    cat: {
+      en: "Product / Packaging",
+      ar: "منتج / تغليف"
+    },
+    note: {
+      en: "Packaging and product shot for a dry cat food. A cream and orange pouch with a clear window for the kibble, set in a warm home scene with a cat behind it so the product is read as cat food at first glance.",
+      ar: "تصميم تغليف وصورة منتج لطعام جاف للقطط. كيس كريمي وبرتقالي بنافذة شفافة تُظهر الحبوب، في أجواء بيتية دافئة مع قطة خلفه، لتُفهم هوية المنتج كطعام قطط من النظرة الأولى."
+    },
+    tag: {
+      en: "Product mockup",
+      ar: "تصميم منتج"
+    },
+    alt: {
+      en: "A cream and orange Dry Food for Cats pouch with a clear window showing kibble, on a light floor with a fluffy cat in soft focus behind and loose kibble in front.",
+      ar: "كيس طعام جاف للقطط بلون كريمي وبرتقالي مع نافذة شفافة تُظهر الحبوب، على أرضية فاتحة، وخلفه قطة كثيفة الفرو خارج التركيز وأمامه حبوب متناثرة."
+    }
+  },
+
+  {
+    file: "07-cat-food-fish.jpg",
+    title: {
+      en: "Dry Food for Cats: Fish Flavour",
+      ar: "طعام جاف للقطط: نكهة السمك"
+    },
+    cat: {
+      en: "Product / Advertising",
+      ar: "منتج / إعلان"
+    },
+    note: {
+      en: "The same pack, this time selling the fish flavour. The pouch sits on a sandy seabed with light rays from the surface and two fish framing it, so the flavour is told by the scene rather than by extra text.",
+      ar: "الكيس نفسه، وهذه المرة لإبراز نكهة السمك. الكيس على قاع رملي مع أشعة ضوء من السطح وسمكتين تحيطان به، فتُروى النكهة بالمشهد بدل نص إضافي."
+    },
+    tag: {
+      en: "Product mockup",
+      ar: "تصميم منتج"
+    },
+    alt: {
+      en: "Cream and orange pouch labelled Dry Food for Cats standing on a sandy seabed among coral and shells, with sunlight rays and two fish swimming on either side.",
+      ar: "كيس بلون كريمي وبرتقالي مكتوب عليه طعام جاف للقطط يقف على قاع رملي بين المرجان والأصداف، مع أشعة شمس وسمكتين تسبحان على الجانبين."
+    }
   }
 
 ];
