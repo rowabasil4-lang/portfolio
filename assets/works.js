@@ -135,6 +135,54 @@ const WORKS = [
       en: "Black and white manga tribute composition with a character on a skateboard above a night city, a cracked glass pane, and figures arranged behind lilies along the lower edge.",
       ar: "تكوين بالأبيض والأسود على أسلوب المانغا، يضم شخصية على لوح تزلّج فوق مدينة ليلية، ولوح زجاج مهشّم، وشخصيات مرتّبة خلف زنابق على الحافة السفلى."
     }
+  },
+
+  {
+    file: "06-cat-food-underwater.jpg",
+    title: {
+      en: "Dry Food for Cats: Underwater",
+      ar: "طعام جاف للقطط: تحت الماء"
+    },
+    cat: {
+      en: "Product / Advertising",
+      ar: "منتج / إعلان"
+    },
+    note: {
+      en: "A cat food pouch placed on a sandy seabed, with light rays from the surface and two fish framing the pack, so the product reads as the catch of the day.",
+      ar: "كيس طعام قطط موضوع على قاع رملي، مع أشعة ضوء من السطح وسمكتين تحيطان بالكيس، ليبدو المنتج وكأنه صيد اليوم."
+    },
+    tag: {
+      en: "Product mockup",
+      ar: "تصميم منتج"
+    },
+    alt: {
+      en: "Cream and orange pouch labelled Dry Food for Cats standing on a sandy seabed among coral and shells, with sunlight rays and two fish swimming on either side.",
+      ar: "كيس بلون كريمي وبرتقالي مكتوب عليه طعام جاف للقطط يقف على قاع رملي بين المرجان والأصداف، مع أشعة شمس وسمكتين تسبحان على الجانبين."
+    }
+  },
+
+  {
+    file: "07-cat-food-home.jpg",
+    title: {
+      en: "Dry Food for Cats: Home",
+      ar: "طعام جاف للقطط: في البيت"
+    },
+    cat: {
+      en: "Product / Advertising",
+      ar: "منتج / إعلان"
+    },
+    note: {
+      en: "The same pack in a warm home setting, with a cat watching from behind and kibble scattered on the floor to show the product up close.",
+      ar: "الكيس نفسه في أجواء بيتية دافئة، مع قطة تراقب من الخلف وحبوب الطعام متناثرة على الأرض لإظهار المنتج عن قرب."
+    },
+    tag: {
+      en: "Product mockup",
+      ar: "تصميم منتج"
+    },
+    alt: {
+      en: "A cream and orange Dry Food for Cats pouch with a clear window showing kibble, on a light floor with a fluffy cat in soft focus behind and loose kibble in front.",
+      ar: "كيس طعام جاف للقطط بلون كريمي وبرتقالي مع نافذة شفافة تُظهر الحبوب، على أرضية فاتحة، وخلفه قطة كثيفة الفرو خارج التركيز وأمامه حبوب متناثرة."
+    }
   }
 
 ];
