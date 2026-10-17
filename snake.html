@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>لعبة الأفعى</title>
+<style>
+  :root { --bg:#faf7f2; --ink:#1b1a17; --board:#efe9de; --snake:#1b3a8f; --head:#13296b; --apple:#d6402f; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#100f0d; --ink:#f3efe7; --board:#1c1a17; --snake:#6f93ff; --head:#a9bfff; --apple:#ff6b57; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100vh; display:flex; flex-direction:column; align-items:center;
+         justify-content:center; gap:14px; padding:16px; background:var(--bg); color:var(--ink);
+         font-family:system-ui,"Segoe UI",Tahoma,sans-serif; user-select:none; -webkit-user-select:none; }
+  h1 { margin:0; font-size:1.5rem; }
+  .bar { display:flex; gap:24px; font-size:1.1rem; }
+  canvas { width:min(92vw,420px); aspect-ratio:1; background:#9ad864; border-radius:14px;
+           touch-action:none; box-shadow:0 6px 24px rgba(0,0,0,.15); }
+  button { font:inherit; padding:10px 22px; border:0; border-radius:10px; background:var(--snake);
+           color:var(--bg); cursor:pointer; }
+  .pad { display:grid; grid-template-columns:repeat(3,56px); grid-template-rows:repeat(2,56px); gap:8px;
+         direction:ltr; }
+  .pad button { padding:0; font-size:1.4rem; }
+  .pad .up { grid-column:2; } .pad .left { grid-row:2; grid-column:1; }
+  .pad .down { grid-row:2; grid-column:2; } .pad .right { grid-row:2; grid-column:3; }
+  small { opacity:.7; }
+</style>
+</head>
+<body>
+  <h1>🐍 لعبة الأفعى</h1>
+  <div class="bar"><span>النقاط: <b id="score">0</b></span><span>أعلى نتيجة: <b id="best">0</b></span></div>
+  <canvas id="c" width="420" height="420"></canvas>
+  <button id="start">ابدأ اللعب</button>
+  <div class="pad">
+    <button class="up" data-d="up">▲</button><button class="left" data-d="left">◀</button>
+    <button class="down" data-d="down">▼</button><button class="right" data-d="right">▶</button>
+  </div>
+  <small>الأسهم أو WASD للتحكم · مسافة للإيقاف المؤقت · أو اسحب بإصبعك</small>
+
+<script>
+const N = 21, S = 420 / N;
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+const scoreEl = document.getElementById('score'), bestEl = document.getElementById('best');
+const startBtn = document.getElementById('start');
+const DIRS = { up:[0,-1], down:[0,1], left:[-1,0], right:[1,0] };
+let best = 0;
+try { best = +localStorage.getItem('snakeBest') || 0; } catch (e) {}
+bestEl.textContent = best;
+
+let snake, dir, queue, apple, score, timer, running, paused, over;
+
+function placeApple() {
+  const free = [];
+  for (let x = 0; x < N; x++) for (let y = 0; y < N; y++)
+    if (!snake.some(s => s.x === x && s.y === y)) free.push({x, y});
+  apple = free.length ? free[Math.floor(Math.random() * free.length)] : null;
+}
+
+function reset() {
+  const m = Math.floor(N / 2);
+  snake = [{x:m, y:m}, {x:m-1, y:m}, {x:m-2, y:m}];
+  dir = DIRS.right; queue = []; score = 0; over = false; paused = false;
+  scoreEl.textContent = 0;
+  placeApple();
+}
+
+function start() {
+  reset(); running = true;
+  startBtn.textContent = 'ابدأ من جديد';
+  clearInterval(timer);
+  timer = setInterval(step, 120);
+  draw();
+}
+
+function turn(name) {
+  if (!running || over) return;
+  const d = DIRS[name];
+  const last = queue.length ? queue[queue.length - 1] : dir;
+  if (d[0] + last[0] === 0 && d[1] + last[1] === 0) return; // no 180° turns
+  if (d !== last && queue.length < 2) queue.push(d);
+}
+
+function step() {
+  if (paused || over) return;
+  if (queue.length) dir = queue.shift();
+  const head = { x: snake[0].x + dir[0], y: snake[0].y + dir[1] };
+  const eating = apple && head.x === apple.x && head.y === apple.y;
+  // the tail moves away this tick unless we are growing
+  const body = eating ? snake : snake.slice(0, -1);
+  if (head.x < 0 || head.y < 0 || head.x >= N || head.y >= N ||
+      body.some(s => s.x === head.x && s.y === head.y)) return gameOver();
+  snake.unshift(head);
+  if (eating) {
+    scoreEl.textContent = ++score;
+    placeApple();
+  } else snake.pop();
+  draw();
+}
+
+function gameOver() {
+  over = true; clearInterval(timer);
+  if (score > best) {
+    best = score; bestEl.textContent = best;
+    try { localStorage.setItem('snakeBest', best); } catch (e) {}
+  }
+  draw();
+}
+
+// ---- garden background, painted once ----
+const garden = document.createElement('canvas');
+garden.width = garden.height = 420;
+(function paintGarden() {
+  const g = garden.getContext('2d');
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  for (let x = 0; x < N; x++) for (let y = 0; y < N; y++) {      // mowed checker lawn
+    g.fillStyle = (x + y) % 2 ? '#8fcf5a' : '#9ad864';
+    g.fillRect(x * S, y * S, S + 1, S + 1);
+  }
+  g.strokeStyle = 'rgba(40,110,30,.35)'; g.lineWidth = 1.2; g.lineCap = 'round';
+  for (let i = 0; i < 260; i++) {                                // grass tufts
+    const x = rnd() * 420, y = rnd() * 420;
+    g.beginPath(); g.moveTo(x, y); g.lineTo(x - 2, y - 5);
+    g.moveTo(x, y); g.lineTo(x + 2, y - 5); g.stroke();
+  }
+  const cols = ['#ffffff', '#ffd84d', '#ff8fb3', '#ffb347', '#c9a7ff'];
+  for (let i = 0; i < 38; i++) {                                 // little flowers
+    const x = rnd() * 400 + 10, y = rnd() * 400 + 10, c = cols[i % cols.length];
+    g.fillStyle = c;
+    for (let k = 0; k < 5; k++) {
+      const a = k * Math.PI * 2 / 5;
+      g.beginPath(); g.arc(x + Math.cos(a) * 3, y + Math.sin(a) * 3, 2.2, 0, 7); g.fill();
+    }
+    g.fillStyle = '#f2a900'; g.beginPath(); g.arc(x, y, 1.6, 0, 7); g.fill();
+  }
+  for (let i = 0; i < 80; i++) {                                 // hedge around the edge
+    const t = rnd() * 4 | 0, p = rnd() * 420, d = rnd() * 7;
+    const [x, y] = [[p, d], [p, 420 - d], [d, p], [420 - d, p]][t];
+    g.fillStyle = i % 2 ? '#2f8f3a' : '#37a345';
+    g.beginPath(); g.arc(x, y, 7 + rnd() * 4, 0, 7); g.fill();
+  }
+  g.strokeStyle = '#256f2e'; g.lineWidth = 6; g.strokeRect(0, 0, 420, 420);
+})();
+
+const C = (p) => [p.x * S + S / 2, p.y * S + S / 2];
+
+function banner(text) {
+  ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.fillRect(0, 0, 420, 420);
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 30px system-ui,Tahoma'; ctx.textAlign = 'center';
+  ctx.fillText(text, 210, 215);
+}
+
+function drawApple() {
+  if (!apple) return;
+  const [x, y] = C(apple), r = S / 2 - 2;
+  ctx.fillStyle = 'rgba(0,0,0,.18)'; ctx.beginPath(); ctx.ellipse(x + 1, y + r - 1, r * .8, 3, 0, 0, 7); ctx.fill();
+  ctx.fillStyle = '#d6302a'; ctx.beginPath(); ctx.arc(x - 2.5, y + 1, r, 0, 7); ctx.arc(x + 2.5, y + 1, r, 0, 7); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,.45)'; ctx.beginPath(); ctx.ellipse(x - 4, y - 3, 2.2, 3.5, -.5, 0, 7); ctx.fill();
+  ctx.strokeStyle = '#6b4226'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(x, y - r + 3); ctx.lineTo(x + 1, y - r - 2); ctx.stroke();
+  ctx.fillStyle = '#2e9a3b'; ctx.beginPath(); ctx.ellipse(x + 5, y - r, 5, 2.5, -.5, 0, 7); ctx.fill();
+}
+
+function drawSnake() {
+  const pts = snake.map(C);
+  const path = () => { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(...p) : ctx.moveTo(...p)); };
+  ctx.lineCap = ctx.lineJoin = 'round';
+  const w = S * 0.82;
+  ctx.translate(2, 3); ctx.strokeStyle = 'rgba(0,0,0,.2)'; ctx.lineWidth = w; path(); ctx.stroke(); ctx.translate(-2, -3); // shadow
+  ctx.strokeStyle = '#15346f'; ctx.lineWidth = w + 3; path(); ctx.stroke();      // outline
+  ctx.strokeStyle = '#2f6fdb'; ctx.lineWidth = w; path(); ctx.stroke();           // body
+  ctx.strokeStyle = '#6fa3ff'; ctx.lineWidth = w * .35; path(); ctx.stroke();     // belly highlight
+  ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 1.5;                 // scale marks
+  for (let i = 2; i < pts.length - 1; i += 2) {
+    const [x, y] = pts[i];
+    ctx.beginPath(); ctx.arc(x, y, w * .3, 0, 7); ctx.stroke();
+  }
+  const [hx, hy] = pts[0], [dx, dy] = dir;                                        // head
+  ctx.fillStyle = '#15346f'; ctx.beginPath(); ctx.arc(hx, hy, w * .62, 0, 7); ctx.fill();
+  ctx.fillStyle = '#3d7ff0'; ctx.beginPath(); ctx.arc(hx, hy, w * .62 - 1.5, 0, 7); ctx.fill();
+  ctx.strokeStyle = '#e0302a'; ctx.lineWidth = 1.8;                               // tongue
+  const tx = hx + dx * w * .6, ty = hy + dy * w * .6;
+  ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(tx + dx * 6, ty + dy * 6);
+  ctx.lineTo(tx + dx * 9 + dy * 3, ty + dy * 9 + dx * 3);
+  ctx.moveTo(tx + dx * 6, ty + dy * 6); ctx.lineTo(tx + dx * 9 - dy * 3, ty + dy * 9 - dx * 3); ctx.stroke();
+  for (const s of [-1, 1]) {                                                      // eyes
+    const ex = hx + dx * 3 - dy * s * 5, ey = hy + dy * 3 + dx * s * 5;
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(ex, ey, 3.4, 0, 7); ctx.fill();
+    ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(ex + dx * 1.2, ey + dy * 1.2, 1.7, 0, 7); ctx.fill();
+  }
+}
+
+function draw() {
+  ctx.drawImage(garden, 0, 0);
+  drawApple();
+  drawSnake();
+  if (over) banner(`انتهت اللعبة! النقاط: ${score}`);
+  else if (paused) banner('متوقفة مؤقتاً');
+}
+
+function togglePause() { if (running && !over) { paused = !paused; draw(); } }
+
+addEventListener('keydown', e => {
+  const map = { ArrowUp:'up', ArrowDown:'down', ArrowLeft:'left', ArrowRight:'right',
+                w:'up', s:'down', a:'left', d:'right', W:'up', S:'down', A:'left', D:'right' };
+  if (map[e.key]) { e.preventDefault(); turn(map[e.key]); }
+  else if (e.key === ' ') { e.preventDefault(); togglePause(); }
+  else if (e.key === 'Enter' && (!running || over)) start();
+});
+
+document.querySelectorAll('.pad button').forEach(b =>
+  b.addEventListener('pointerdown', e => { e.preventDefault(); turn(b.dataset.d); }));
+startBtn.addEventListener('click', start);
+
+// swipe
+let t0 = null;
+cv.addEventListener('pointerdown', e => { t0 = [e.clientX, e.clientY]; });
+cv.addEventListener('pointerup', e => {
+  if (!t0) return;
+  const dx = e.clientX - t0[0], dy = e.clientY - t0[1]; t0 = null;
+  if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) return togglePause();
+  turn(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'));
+});
+
+reset(); draw(); running = false;
+</script>
+</body>
+</html>
